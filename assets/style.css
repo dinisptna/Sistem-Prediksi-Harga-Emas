@@ -1,0 +1,147 @@
+/* Layout container */
+.block-container {
+  padding-top: 4.2rem;
+  max-width: 1200px;
+}
+
+/* Top navigation */
+.nav-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+  margin: 10px 0 18px 0;
+  flex-wrap: wrap;
+}
+
+.nav-btn a {
+  display: inline-block;
+  padding: 10px 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(0,0,0,0.12);
+  background: rgba(255,255,255,0.85);
+  text-decoration: none !important;
+  font-weight: 700;
+  font-size: 16px;
+  color: #111 !important;
+  transition: transform 0.05s ease-in-out;
+}
+
+.nav-btn a:hover {
+  transform: translateY(-1px);
+}
+
+/* Small creator text */
+.creator {
+  font-size: 12px;
+  opacity: 0.75;
+  margin-top: 4px;
+  margin-bottom: 10px;
+}
+
+/* Price big */
+.price-wrap {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.price-big {
+  font-size: 42px;
+  font-weight: 800;
+  line-height: 1.0;
+}
+
+.price-unit {
+  font-size: 16px;
+  font-weight: 700;
+  opacity: 0.85;
+}
+
+/* Small caption below price */
+.caption {
+  font-size: 12px;
+  opacity: 0.75;
+  margin-top: 6px;
+}
+
+/* Vertical divider */
+.v-divider {
+  height: 86px;
+  border-left: 1px solid rgba(0,0,0,0.18);
+  margin: 0 auto;
+}
+
+/* Section title */
+.section-title {
+  font-size: 18px;
+  font-weight: 800;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+/* KPI cards */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-top: 10px;
+}
+
+.kpi {
+  border: 1px solid rgba(0,0,0,0.12);
+  border-radius: 16px;
+  padding: 14px 14px 10px 14px;
+  background: rgba(255,255,255,0.85);
+}
+
+.kpi-title {
+  font-size: 13px;
+  font-weight: 800;
+  opacity: 0.9;
+}
+
+.kpi-value-wrap {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.kpi-value {
+  font-size: 28px;
+  font-weight: 900;
+  line-height: 1.0;
+}
+
+.kpi-unit {
+  font-size: 13px;
+  font-weight: 800;
+  opacity: 0.8;
+}
+
+.kpi-date {
+  font-size: 12px;
+  opacity: 0.7;
+  margin-top: 6px;
+}
+
+/* ===== Center top navigation (st.navigation) ===== */
+
+/* wrapper utama navbar */
+header[data-testid="stHeader"] {
+  display: flex;
+  justify-content: center;
+}
+
+/* container isi navbar */
+header[data-testid="stHeader"] > div {
+  width: fit-content;
+}
+
+/* item navbar (biar rapi & seimbang) */
+header [role="navigation"] {
+  justify-content: center !important;
+}
+
