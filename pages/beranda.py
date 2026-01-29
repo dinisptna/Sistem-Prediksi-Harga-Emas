@@ -1,3 +1,4 @@
+from click import Path
 import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
@@ -255,8 +256,8 @@ def home_page():
     )
 
     # Cover image
-    st.image("assets/Beranda.JPG", use_container_width=True)
-
+    st.image("assets/Beranda.jpg", use_container_width=True)
+    
     # Load data + prediction
     with st.spinner("Memuat data emas & prediksi..."):
         df_gold = get_gold_data_cached(st.session_state.data_version)
