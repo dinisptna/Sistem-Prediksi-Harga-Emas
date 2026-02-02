@@ -111,7 +111,7 @@ def berita_page():
         df["relevan"] = False
 
     df_rel = df[df["relevan"] == True].copy()
-
+    
     if df_rel.empty or "sentiment_score" not in df_rel.columns or "faktor" not in df_rel.columns:
         mean_sent = 0.0
     else:

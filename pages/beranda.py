@@ -405,7 +405,7 @@ def home_page():
         # kalau masih kosong, fallback ke semua berita pada window
         if df_rel.empty:
             df_rel = df_news.copy()
-
+            
         if df_rel.empty or "sentiment_score" not in df_rel.columns or "faktor" not in df_rel.columns:
             mean_sent = 0.0
         else:
@@ -424,6 +424,7 @@ def home_page():
             d = d.dropna(subset=["sentiment_score"])
 
             mean_sent = float(d["sentiment_score"].mean()) if not d.empty else 0.0
+
 
         # faktor dominan: usahain bukan "Ekonomi" (kalau ada selain itu)
         faktor_dom = "Ekonomi"
