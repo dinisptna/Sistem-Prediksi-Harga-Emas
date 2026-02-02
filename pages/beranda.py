@@ -489,14 +489,21 @@ def home_page():
         """
         <div style="font-size:16px; line-height:1.7; margin-top:18px; opacity:.9;">
         <b>Analisis Singkat:</b><br>
-        Ketika hasil prediksi teknikal dan dampak emas dari berita menunjukkan <b>arah yang sama, maka:</b></br>
-        maka hal ini mengindikasikan adanya konfirmasi antar kedua pendekatan (teknikal dan sentimen),</br> 
-        sehingga meningkatkan tingkat kepercayaan terhadap prediksi.</br>
+        Sistem ini menunjukkan bahwa analisis sentimen berita ekonomi global memiliki keterkaitan yang erat</br> 
+        dengan arah pergerakan harga emas, khususnya sebagai alat pendukung interpretasi dan validasi terhadap hasil prediksi teknikal.</br>
+        
         </br> 
-        Sebaliknya, apabila terjadi <b>perbedaan arah maka:</b></br>
-        maka kondisi tersebut mencerminkan ketidakpastian keadaan pasar atau fase transisi,</br> 
-        di mana keadaan ekonomi global oleh sentimen berita mendahului pergerakan harga aktual.</br> 
-        sehingga disarankan untuk berhati-hati dalam mengambil keputusan investasi.</br>
+        Ketika arah prediksi teknikal (berbasis Random Forest dan estimasi return median) sejalan dengan dampak emas yang dihasilkan</br>
+        dari analisis sentimen berita (FinBERT), kondisi ini mengindikasikan adanya konfirmasi antar dua pendekatan yang berbeda</br>
+        namun saling melengkapi, yaitu pendekatan kuantitatif (teknikal) dan pendekapan kualitatif (sentimen berita).</br>
+        </br>
+        Sebaliknya, apabila terjadi perbedaan arah antara hasil prediksi teknikal dan dampak emas dari sentimen berita,</br> 
+        maka kondisi tersebut mencerminkan fase ketidakpastian atau transisi pasar. Dalam situasi ini, sentimen berita sering kali</br>
+        berperan sebagai indikator awal (leading indicator) yang mendahului pergerakan harga aktual, sehingga perbedaan arah</br>
+        dapat digunakan sebagai sinyal kehati-hatian dalam interpretasi hasil prediksi.</br>
+        </br>
+        Melalui web yang dikembangkan, kita dapat memahami arah pergerakan harga emas beserta konteks ekonomi globalnya,</br> 
+        sehingga membantu meningkatkan kesadaran akan pentingnya investasi sebagai langkah perlindungan nilai di tengah ketidakpastian ekonomi.
         
         </div>
         """,

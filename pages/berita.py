@@ -67,7 +67,7 @@ def berita_page():
 
     # ========= UI HEADER + Tombol update (tanpa input max_total) =========
     # max_total dikunci di kode (revisi #1)
-    MAX_TOTAL = 1000
+    MAX_TOTAL = 1000000
 
     st.markdown(
         '<div style="font-size:35px; font-weight:900; line-height:1; margin-bottom:10px;">Informasi Berita</div>',

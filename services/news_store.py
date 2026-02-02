@@ -287,7 +287,7 @@ def save_tsv(df: pd.DataFrame, path: Path = DEFAULT_TSV) -> None:
 def fetch_and_append_news(
     start_date: pd.Timestamp,
     end_date: pd.Timestamp,
-    max_total: int = 1000,
+    max_total: int = 100000,
     path: Path = DEFAULT_TSV,
 ) -> pd.DataFrame:
     """
