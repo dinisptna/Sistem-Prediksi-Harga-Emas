@@ -112,7 +112,100 @@ def get_prediction_cached(data_version: int) -> dict:
         "pred_close_H1": pred_H1,
     }
 
-def make_chart(df: pd.DataFrame, pred: dict, horizon: int) -> go.Figure:
+import os
+
+PRED_CSV_PATH = "data/line_prediksi.csv"
+
+@st.cache_data(show_spinner=False)
+def compute_hist_pred_last_n_cached(data_version: int, upto_date_str: str, n: int = 5) -> pd.DataFrame:
+    """
+    Buat prediksi historis untuk n hari terakhir (target-date),
+    basisnya H-1 (fitur hari sebelumnya).
+    Output: kolom pred_date, basis_date, pred_close
+    """
+    upto_date = pd.Timestamp(upto_date_str)
+
+    feat_all = get_feature_df_cached(data_version)
+    feat = feat_all.loc[:upto_date].copy()
+
+    if len(feat) < 2:
+        return pd.DataFrame(columns=["pred_date", "basis_date", "pred_close"])
+
+    tail = feat.tail(n + 1)  # butuh 1 hari basis tambahan
+    idx = list(tail.index)
+
+    model = load_model("models/rf_gold_direction_model.pkl")
+    med = get_median_returns(feat_all)
+
+    rows = []
+    for i in range(1, len(tail)):
+        basis = tail.iloc[i - 1]
+        basis_date = pd.Timestamp(idx[i - 1])
+        pred_date = pd.Timestamp(idx[i])
+
+        last_close = float(basis["Close"])
+        pred_dir = predict_direction(model, basis)
+        pred_H, _, _ = predict_close_H_and_H1(last_close, pred_dir, med)
+
+        rows.append({
+            "pred_date": pred_date,
+            "basis_date": basis_date,
+            "pred_close": float(pred_H),
+        })
+
+    return pd.DataFrame(rows)
+
+def upsert_pred_csv(df_new: pd.DataFrame) -> None:
+    """Append + dedup by pred_date, simpan ke data/line_prediksi.csv"""
+    if df_new is None or df_new.empty:
+        return
+
+    os.makedirs("data", exist_ok=True)
+
+    # normalisasi tipe
+    df_new = df_new.copy()
+    df_new["pred_date"] = pd.to_datetime(df_new["pred_date"])
+    df_new["basis_date"] = pd.to_datetime(df_new["basis_date"])
+    df_new["pred_close"] = pd.to_numeric(df_new["pred_close"], errors="coerce")
+
+    if os.path.exists(PRED_CSV_PATH):
+        df_old = pd.read_csv(PRED_CSV_PATH)
+        if not df_old.empty:
+            df_old["pred_date"] = pd.to_datetime(df_old["pred_date"], errors="coerce")
+            df_old["basis_date"] = pd.to_datetime(df_old["basis_date"], errors="coerce")
+            df_old["pred_close"] = pd.to_numeric(df_old["pred_close"], errors="coerce")
+        df_all = pd.concat([df_old, df_new], ignore_index=True)
+    else:
+        df_all = df_new
+
+    # keep latest per pred_date
+    df_all = df_all.dropna(subset=["pred_date", "pred_close"])
+    df_all = df_all.sort_values("pred_date")
+    df_all = df_all.drop_duplicates(subset=["pred_date"], keep="last")
+
+    df_all.to_csv(PRED_CSV_PATH, index=False)
+
+def load_last_n_pred_series(upto_date: pd.Timestamp, hist_index: pd.DatetimeIndex, n: int = 5) -> pd.Series:
+    """Ambil n prediksi historis terakhir dari CSV untuk diplot."""
+    if not os.path.exists(PRED_CSV_PATH):
+        return pd.Series([], dtype="float64")
+
+    dfp = pd.read_csv(PRED_CSV_PATH)
+    if dfp.empty:
+        return pd.Series([], dtype="float64")
+
+    dfp["pred_date"] = pd.to_datetime(dfp["pred_date"], errors="coerce")
+    dfp["pred_close"] = pd.to_numeric(dfp["pred_close"], errors="coerce")
+    dfp = dfp.dropna(subset=["pred_date", "pred_close"])
+
+    dfp = dfp[dfp["pred_date"] <= pd.Timestamp(upto_date)]
+    dfp = dfp[dfp["pred_date"].isin(hist_index)]
+    dfp = dfp.sort_values("pred_date").tail(n)
+
+    return pd.Series(dfp["pred_close"].values, index=dfp["pred_date"], name="PrediksiHistoris")
+
+
+def make_chart(df: pd.DataFrame, pred: dict, horizon: int, hist_pred: pd.Series = None) -> go.Figure:
     hist = df.copy()
 
     last_date = pd.Timestamp(pred["last_date"])
@@ -162,6 +255,31 @@ def make_chart(df: pd.DataFrame, pred: dict, horizon: int) -> go.Figure:
             "<extra></extra>"
         ),
     ))
+
+    # Prediksi historis (kuning) - hanya 5 titik terakhir yang dikirim
+    if hist_pred is not None and len(hist_pred) > 0:
+        hp = hist_pred.reindex(hist.index)
+        err_pct = ((hp - hist["Close"]) / hist["Close"] * 100)
+
+        custom = []
+        for a, e in zip(hist["Close"].tolist(), err_pct.tolist()):
+            custom.append((a, None if pd.isna(e) else float(e)))
+
+        fig.add_trace(go.Scatter(
+            x=hp.index,
+            y=hp.values,
+            mode="lines",
+            name="Prediksi Historis (5 hari)",
+            line=dict(color="#fb923c", width=3),
+            opacity=0.9,
+            customdata=custom,
+            hovertemplate=(
+                "Date: %{x|%d %b %Y}<br>"
+                "Pred Close: %{y:,.2f} USD<br>"
+                "Error: %{customdata[1]:+.2f}%"
+                "<extra></extra>"
+            ),
+        ))
 
     # Prediksi
     ret_preds = [(v / last_close - 1) * 100 for v in future_vals]
@@ -300,9 +418,24 @@ def home_page():
     # Chart section
     st.markdown('---')
     st.markdown('<div style="font-size:35px; font-weight:900; line-height:1;">Chart + Prediksi</div>', unsafe_allow_html=True)
-
     horizon = 22  # ~ 1 bulan hari kerja
-    fig = make_chart(df_gold, pred, horizon)
+
+    # 1) hitung 5 prediksi historis terakhir (basis H-1) lalu simpan ke CSV (append+dedup)
+    df_last5 = compute_hist_pred_last_n_cached(
+        st.session_state.data_version,
+        str(pd.Timestamp(pred["last_date"]).date()),
+        n=5
+    )
+    upsert_pred_csv(df_last5)
+
+    # 2) load 5 terakhir dari CSV untuk diplot (biar historinya tetap kebawa walau hari berganti)
+    hist_pred = load_last_n_pred_series(
+        upto_date=pd.Timestamp(pred["last_date"]),
+        hist_index=df_gold.loc[:pd.Timestamp(pred["last_date"])].index,
+        n=5
+    )
+
+    fig = make_chart(df_gold, pred, horizon, hist_pred=hist_pred)
     st.plotly_chart(fig, use_container_width=True, config={"scrollZoom": True, "displaylogo": False})
 
     # KPI section

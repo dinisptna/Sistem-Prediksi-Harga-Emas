@@ -119,3 +119,4 @@ def predict_close_H_and_H1(last_close: float, pred_dir: int, med: dict) -> tuple
     pred_H = float(last_close * (1 + r))
     pred_H1 = float(pred_H * (1 + r))  # Opsi 1: masih basis H-1
     return pred_H, pred_H1, r
+
