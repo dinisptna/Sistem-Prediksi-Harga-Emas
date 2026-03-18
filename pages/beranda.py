@@ -432,6 +432,14 @@ def home_page():
                     end_date=end_news,
                     max_total=500  # batasi biar ga berat di cloud
                 )
+                # hitung jumlah tambahan
+                added = len(df_new) - len(df_old)
+
+            # notifikasi
+            if added > 0:
+                st.success(f"✅ Berhasil menambahkan {added} berita baru")
+            else:
+                st.info("ℹ️ Tidak ada berita baru (sudah up-to-date)")
             st.session_state["just_updated"] = True
             st.rerun()
 
