@@ -432,6 +432,8 @@ def home_page():
                     end_date=end_news,
                     max_total=500  # batasi biar ga berat di cloud
                 )
+            st.session_state["just_updated"] = True
+            st.rerun()
 
 
     # Chart section
