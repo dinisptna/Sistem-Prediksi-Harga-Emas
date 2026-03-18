@@ -9,3 +9,6 @@ joblib
 requests
 streamlit-navigation-bar
 feedparser
+transformers
+torch
+sentencepiece
