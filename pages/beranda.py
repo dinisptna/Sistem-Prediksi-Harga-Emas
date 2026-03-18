@@ -7,6 +7,7 @@ from services.news_store import FACTOR_KEYWORDS, _impact_from_news_rule_based
 from core.style import load_css
 from core.state import ensure_state_defaults, bump_data_version
 from services.market_data import fetch_gold_ohlcv
+from services.news_store import fetch_and_append_news, load_tsv
 from services.predictor import (
     compute_feature_frame,
     load_model,
@@ -411,9 +412,27 @@ def home_page():
             unsafe_allow_html=True
         )
         if st.button("Run Update", use_container_width=True):
-            bump_data_version()
-            st.session_state["just_updated"] = True
-            st.rerun()
+            with st.spinner("Mengupdate berita terbaru..."):
+                # load data lama
+                df_old = load_tsv()
+
+                # tentukan start date (incremental)
+                if df_old.empty:
+                    start_news = pd.Timestamp("2026-01-01")
+                else:
+                    last_date = pd.to_datetime(df_old["tanggal"], errors="coerce").max()
+                    start_news = last_date - pd.Timedelta(days=1)
+
+                # end date = hari ini (atau bisa pakai last close kalau mau konsisten)
+                end_news = pd.Timestamp.now()
+
+                # fetch & append
+                df_new = fetch_and_append_news(
+                    start_date=start_news,
+                    end_date=end_news,
+                    max_total=500  # batasi biar ga berat di cloud
+                )
+
 
     # Chart section
     st.markdown('---')
