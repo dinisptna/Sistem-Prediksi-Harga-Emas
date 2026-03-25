@@ -4,10 +4,12 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 import re
+import time
 
 import pandas as pd
 import feedparser
 
+feedparser.USER_AGENT = "Mozilla/5.0"
 from services.finbert_service import finbert_score
 
 DEFAULT_TSV = Path("data/berita.tsv")
@@ -299,7 +301,12 @@ def fetch_and_append_news(
 
     items: List[dict] = []
     for source_name, url in RSS_SOURCES.items():
-        feed = feedparser.parse(url)
+        try:
+            feed = feedparser.parse(url)
+        except Exception as e:
+            print(f"Error fetch {url}: {e}")
+            continue        
+        time.sleep(1)
         for entry in getattr(feed, "entries", []):
             title = str(getattr(entry, "title", "") or "")
             link = str(getattr(entry, "link", "") or "")

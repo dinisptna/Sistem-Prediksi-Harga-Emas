@@ -430,7 +430,7 @@ def home_page():
                 df_new = fetch_and_append_news(
                     start_date=start_news,
                     end_date=end_news,
-                    max_total=500  # batasi biar ga berat di cloud
+                    max_total=100  # batasi biar ga berat di cloud
                 )
                 # hitung jumlah tambahan
                 added = len(df_new) - len(df_old)
