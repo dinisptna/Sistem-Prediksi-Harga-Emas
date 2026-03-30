@@ -7,14 +7,16 @@ import numpy as np
 def get_finbert_pipe():
     try:
         from transformers import pipeline
+        # Gunakan model yang lebih kecil atau pastikan device adalah cpu
         pipe = pipeline(
             "sentiment-analysis",
             model="ProsusAI/finbert",
-            tokenizer="ProsusAI/finbert"
+            tokenizer="ProsusAI/finbert",
+            device=-1 # Paksa pakai CPU
         )
         return pipe
     except Exception as e:
-        print("❌ FinBERT gagal load:", e)
+        st.error(f"Gagal memuat FinBERT: {e}")
         return None
 
 
